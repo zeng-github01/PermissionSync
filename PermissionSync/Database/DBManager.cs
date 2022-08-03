@@ -26,7 +26,7 @@ namespace PermissionSync.Database
         public void CheckSchama()
         {
             DBConnection.ExecuteQuery(true,
-                $"CREATE TABLE IF NOT EXISTS `{Main.Instance.Configuration.Instance.DatabaseTableName}` (`SteamID` BINGINT NOT NULL, `PermissionGroup` varchar(32) NOT NULL, `ExpireDate` datetime(6) NOT NULL DEFAULT '{DateTime.MaxValue}', `Operator` BIGINT NOT NULL)");
+                $"CREATE TABLE IF NOT EXISTS `{Main.Instance.Configuration.Instance.DatabaseTableName}` (`SteamID` BIGINT NOT NULL, `PermissionGroup` varchar(32) NOT NULL, `ExpireDate` datetime(6) NOT NULL DEFAULT '{DateTime.MaxValue}', `Operator` BIGINT NOT NULL)");
         }
 
         internal void PermissionSync(UnturnedPlayer player) 
@@ -121,7 +121,7 @@ namespace PermissionSync.Database
         internal void SaveDataToDB(PermissionData permissionData)
         {
             DBConnection.ExecuteQuery(true,
-                $"INSERT INTO `{Main.Instance.Configuration.Instance.DatabaseTableName}` (SteamID,PermissionID,ExpireDate,Operator) values('{permissionData.SteamID}','{permissionData.PermissionID}','{permissionData.ExpireDate}','{permissionData.OperatorID}') ");
+                $"INSERT INTO `{Main.Instance.Configuration.Instance.DatabaseTableName}` (SteamID,PermissionGroup,ExpireDate,Operator) values('{permissionData.SteamID}','{permissionData.PermissionID}','{permissionData.ExpireDate}','{permissionData.OperatorID}') ");
         }
 
         internal void RemoveDataFromDB(UnturnedPlayer player,string groupid)
@@ -133,7 +133,7 @@ namespace PermissionSync.Database
         internal void UpdateDataInDB(PermissionData permissionData)
         {
             DBConnection.ExecuteQuery(true,
-                $"Update `{Main.Instance.Configuration.Instance.DatabaseTableName}` SET `ExpireDate` = '{permissionData.ExpireDate}',`Operator` = '{permissionData.OperatorID}' Where `SteamID` = '{permissionData.SteamID}' AND `PermissionID` = '{permissionData.PermissionID}'");
+                $"Update `{Main.Instance.Configuration.Instance.DatabaseTableName}` SET `ExpireDate` = '{permissionData.ExpireDate}',`Operator` = '{permissionData.OperatorID}' Where `SteamID` = '{permissionData.SteamID}' AND `PermissionGroup` = '{permissionData.PermissionID}'");
         }
     }
 }
