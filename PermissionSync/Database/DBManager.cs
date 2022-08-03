@@ -26,7 +26,7 @@ namespace PermissionSync.Database
         public void CheckSchama()
         {
             DBConnection.ExecuteQuery(true,
-                $"CREATE TABLE IF NOT EXIST `{Main.Instance.Configuration.Instance.DatabaseTableName}` (`SteamID` BINGINT NOT NULL, `PermissionGroup` varchar(32) NOT NULL, `ExpireDate` datetime(6) NOT NULL DEFAULT '{DateTime.MaxValue}', `Operator` BIGINT NOT NULL)");
+                $"CREATE TABLE IF NOT EXISTS `{Main.Instance.Configuration.Instance.DatabaseTableName}` (`SteamID` BINGINT NOT NULL, `PermissionGroup` varchar(32) NOT NULL, `ExpireDate` datetime(6) NOT NULL DEFAULT '{DateTime.MaxValue}', `Operator` BIGINT NOT NULL)");
         }
 
         internal void PermissionSync(UnturnedPlayer player) 
