@@ -113,6 +113,11 @@ namespace PermissionSync.Database
             R.Permissions.RemovePlayerFromGroup(PermiisonGroupId, player);
         }
 
+        public void UpdatePermission(UnturnedPlayer player, string PermissionGroupId,DateTime dateTime,string operatorID)
+        {
+            UpdateDataInDB(new PermissionData(player.CSteamID, PermissionGroupId, dateTime, operatorID));
+        }
+
         internal void SaveDataToDB(PermissionData permissionData)
         {
             DBConnection.ExecuteQuery(true,
@@ -123,6 +128,12 @@ namespace PermissionSync.Database
         {
             DBConnection.ExecuteQuery(true,
                 $"Delect from `{Main.Instance.Configuration.Instance.DatabaseTableName}` Where `SteamID` = '{player.CSteamID}' and `PermissionGroup` = '{groupid}'");
+        }
+
+        internal void UpdateDataInDB(PermissionData permissionData)
+        {
+            DBConnection.ExecuteQuery(true,
+                $"Update `{Main.Instance.Configuration.Instance.DatabaseTableName}` SET `ExpireDate` = '{permissionData.ExpireDate}',`Operator` = '{permissionData.OperatorID}' Where `SteamID` = '{permissionData.SteamID}' AND `PermissionID` = '{permissionData.PermissionID}'");
         }
     }
 }

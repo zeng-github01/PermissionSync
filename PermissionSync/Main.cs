@@ -14,7 +14,7 @@ namespace PermissionSync
     public class Main :RocketPlugin<Configuration>
     {
         public static Main Instance;
-        internal DBManager databese;
+        public DBManager databese;
 
         protected override void Load()
         {
