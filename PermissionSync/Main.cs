@@ -39,7 +39,7 @@ namespace PermissionSync
         public override TranslationList DefaultTranslations => new TranslationList
         {
             {"player_not_found","Player not found!" },
-            {"","" }
+            {"permission_expired","your permission group has been expired:{0}" }
         };
     }
 }

@@ -26,16 +26,18 @@ namespace PermissionSync.Database
         public void CheckSchama()
         {
             DBConnection.ExecuteQuery(true,
-                $"CREATE TABLE IF NOT EXISTS `{Main.Instance.Configuration.Instance.DatabaseTableName}` (`SteamID` BIGINT NOT NULL, `PermissionGroup` varchar(32) NOT NULL, `ExpireDate` datetime(6) NOT NULL DEFAULT '{DateTime.MaxValue}', `Operator` BIGINT NOT NULL)");
+                $"CREATE TABLE IF NOT EXISTS `{Main.Instance.Configuration.Instance.DatabaseTableName}` (`SteamID` BIGINT NOT NULL, `PermissionGroup` varchar(32) NOT NULL, `ExpireDate` datetime(6) NOT NULL DEFAULT '{DateTime.MaxValue}', `Operator`VARCHAR(32) NOT NULL)");
         }
 
         internal void PermissionSync(UnturnedPlayer player) 
         {
+            //UnturnedChat.Say(player, "[DEBUG] Sync permission");
             var servergroupids = GetPlayerPermissionGroupId(player);
+            // Get Player's PermissionGroup
             var dbgroups = GetDBPermissionGroup(player.CSteamID, EDBQueryType.ByStamID);
             foreach (var dbgroup in dbgroups )
             {
-               if( servergroupids.Contains(dbgroup.PermissionID))
+               if(servergroupids.Contains(dbgroup.PermissionID))
                 {
                     if(dbgroup.ExpireDate < DateTime.Now)
                     {
@@ -45,7 +47,7 @@ namespace PermissionSync.Database
                 }
                else
                 {
-                    if(dbgroup.ExpireDate> DateTime.Now)
+                    if(dbgroup.ExpireDate >= DateTime.Now)
                     {
                         R.Permissions.AddPlayerToGroup(dbgroup.PermissionID, player);
                         UnturnedChat.Say(player, Main.Instance.Translate("sync_permission",dbgroup.PermissionID));
@@ -76,16 +78,19 @@ namespace PermissionSync.Database
                 }
                 connection.Open();
                 var reader = command.ExecuteReader();
+               // Logger.LogWarning("[GetDB]");
                 while(reader.Read())
                 {
-                    PermissionData permissionData = new PermissionData(new CSteamID((ulong)reader["SteamID"]), reader["PermissionGroup"].ToString(), DateTime.Parse(reader["ExpireDate"].ToString()), reader["Operator"].ToString());
+                    PermissionData permissionData = new PermissionData(new CSteamID(Convert.ToUInt64(reader["SteamID"])), reader["PermissionGroup"].ToString(), DateTime.Parse(reader["ExpireDate"].ToString()), reader["Operator"].ToString());
                     permissionDatas.Add(permissionData);
+                    //Logger.LogWarning("[DEBUG]SID:" + permissionData.SteamID + "PG:" + permissionData.PermissionID + "Date" + permissionData.ExpireDate);
                 }
+                //Logger.LogWarning("[GetDBS]");
 
             }
-            catch
+            catch(Exception ex)
             {
-
+                Logger.LogException(ex);
             }
             return permissionDatas;
         }
@@ -93,7 +98,7 @@ namespace PermissionSync.Database
         private List<string> GetPlayerPermissionGroupId(UnturnedPlayer player)
         {
             var groupids = new List<string>();
-            var playergroups = R.Permissions.GetGroups(player, false);
+            var playergroups = R.Permissions.GetGroups(player, true);
             foreach (var group in playergroups)
             {
                 groupids.Add(group.Id);

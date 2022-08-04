@@ -19,7 +19,7 @@ namespace PermissionSync.Command
 
         public string Help => "Sync permission group between multiple servers";
 
-        public string Syntax => "<add | remove > <player> <PermiisonGroupId> [ExpireDate] ";
+        public string Syntax => "<add | remove > <player> <PermissionGroupId> [ExpireDate] ";
 
         public AllowedCaller AllowedCaller => AllowedCaller.Both;
 
