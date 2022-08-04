@@ -9,6 +9,7 @@ namespace PermissionSync
 {
     public class Configuration :IRocketPluginConfiguration
     {
+        public int TableVer;
         public string DatabaseAddress;
         public string DatabaseUsername;
         public string DatabasePassword;
@@ -17,8 +18,9 @@ namespace PermissionSync
         public int DatabasePort;
         public void LoadDefaults()
         {
+            TableVer = 2;
             DatabaseAddress = "127.0.0.1";
-            DatabaseUsername = "unturned";
+            DatabaseUsername = "root";
             DatabasePassword = "password";
             DatabaseName = "unturned";
             DatabaseTableName = "permissionsync";
