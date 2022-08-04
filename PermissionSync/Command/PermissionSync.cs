@@ -35,7 +35,7 @@ namespace PermissionSync.Command
                         {
                             var player = UnturnedPlayer.FromCSteamID(new Steamworks.CSteamID(result));
                             Main.Instance.databese.AddPermission((caller.Id),player, args[2]);
-                            UnturnedChat.Say(caller, Main.Instance.Translate("add_permission"));
+                            UnturnedChat.Say(caller, Main.Instance.Translate("add_permission", args[2],player.DisplayName));
                         }
                         else
                         {
@@ -43,7 +43,7 @@ namespace PermissionSync.Command
                             if (player != null)
                             {
                                 Main.Instance.databese.AddPermission(caller.Id, player, args[2]);
-                                UnturnedChat.Say(caller, Main.Instance.Translate("add_permission"));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("add_permission", args[2],player.DisplayName));
                             }
                             else
                             {
@@ -57,7 +57,7 @@ namespace PermissionSync.Command
                         {
                             var player = UnturnedPlayer.FromCSteamID(new Steamworks.CSteamID(result));
                             Main.Instance.databese.RemovePermission(player, args[2]);
-                            UnturnedChat.Say(caller, Main.Instance.Translate("remove_permission"));
+                            UnturnedChat.Say(caller, Main.Instance.Translate("remove_permission", args[2],player.DisplayName));
                         }
                         else
                         {
@@ -65,7 +65,7 @@ namespace PermissionSync.Command
                             if (player != null)
                             {
                                 Main.Instance.databese.RemovePermission(player, args[2]);
-                                UnturnedChat.Say(caller, Main.Instance.Translate("remove_permission"));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("remove_permission", args[2],player.DisplayName));
                             }
                             else
                             {
@@ -82,7 +82,7 @@ namespace PermissionSync.Command
                         {
                             var player = UnturnedPlayer.FromCSteamID(new Steamworks.CSteamID(result));
                             Main.Instance.databese.AddPermission(caller.Id,player, args[2], args[3]);
-                            UnturnedChat.Say(caller, Main.Instance.Translate("add_permission"));
+                            UnturnedChat.Say(caller, Main.Instance.Translate("add_permission", args[2],player.DisplayName));
                         }
                         else
                         {
@@ -90,26 +90,7 @@ namespace PermissionSync.Command
                             if (player != null)
                             {
                                 Main.Instance.databese.AddPermission(caller.Id, player, args[2], args[3]);
-                            }
-                            else
-                            {
-                                UnturnedChat.Say(caller, Main.Instance.Translate("player_not_found"), UnityEngine.Color.red);
-                            }
-                        }
-                    }
-                    if (args[0] == "remove")
-                    {
-                        if (ulong.TryParse(args[1], out ulong result))
-                        {
-                            var player = UnturnedPlayer.FromCSteamID(new Steamworks.CSteamID(result));
-                            Main.Instance.databese.RemovePermission(player, args[2]);
-                        }
-                        else
-                        {
-                            var player = UnturnedPlayer.FromName(args[1]);
-                            if (player != null)
-                            {
-                                Main.Instance.databese.RemovePermission(player, args[2]);
+                                UnturnedChat.Say(caller, Main.Instance.Translate("add_permission", args[2], player.DisplayName));
                             }
                             else
                             {
@@ -121,7 +102,7 @@ namespace PermissionSync.Command
             }
             else
             {
-                UnturnedChat.Say(caller, Main.Instance.Translate(""), UnityEngine.Color.red);
+                UnturnedChat.Say(caller, Main.Instance.Translate("wrong_usage",Syntax), UnityEngine.Color.red);
             }
         }
     }
