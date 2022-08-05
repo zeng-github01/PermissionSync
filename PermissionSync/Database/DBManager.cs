@@ -25,10 +25,10 @@ namespace PermissionSync.Database
 
         internal void CheckSchama()
         {
-            DBConnection.ExecuteQuery(true,
-                $"CREATE TABLE IF NOT EXISTS `{Main.Instance.Configuration.Instance.DatabaseTableName}` (`SteamID` BIGINT NOT NULL, `PermissionGroup` varchar(32) NOT NULL, `ExpireDate` datetime(6) NOT NULL DEFAULT '{DateTime.MaxValue}', `Operator` VARCHAR(32) NOT NULL , UNIQUE KEY unique_permission (SteamID,PermissionGroup)");
 
-            if(Main.Instance.Configuration.Instance.TableVer == 1)
+            DBConnection.ExecuteQuery(true,
+                $"CREATE TABLE IF NOT EXISTS `{Main.Instance.Configuration.Instance.DatabaseTableName}` (`SteamID` BIGINT NOT NULL, `PermissionGroup` varchar(32) NOT NULL, `ExpireDate` datetime(6) NOT NULL DEFAULT '{DateTime.MaxValue}', `Operator` VARCHAR(32) NOT NULL,UNIQUE KEY unique_permission (`SteamID`,`PermissionGroup`));");
+            if (Main.Instance.Configuration.Instance.TableVer == 1)
             {
                 DBConnection.ExecuteQuery(true,
                     $"ALTER TABLE `{Main.Instance.Configuration.Instance.DatabaseTableName}` ADD CONSTRAINT unique_permission UNIQUE KEY(`SteamID`,`PermissionGroup`)");
