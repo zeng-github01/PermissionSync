@@ -84,19 +84,20 @@ namespace PermissionSync.Database
                 }
                 connection.Open();
                 var reader = command.ExecuteReader();
-               // Logger.LogWarning("[GetDB]");
                 while(reader.Read())
                 {
                     PermissionData permissionData = new PermissionData(new CSteamID(Convert.ToUInt64(reader["SteamID"])), reader["PermissionGroup"].ToString(), DateTime.Parse(reader["ExpireDate"].ToString()), reader["Operator"].ToString());
-                    permissionDatas.Add(permissionData);
-                    //Logger.LogWarning("[DEBUG]SID:" + permissionData.SteamID + "PG:" + permissionData.PermissionID + "Date" + permissionData.ExpireDate);
+                    permissionDatas.Add(permissionData); 
                 }
-                //Logger.LogWarning("[GetDBS]");
 
             }
             catch(Exception ex)
             {
                 Logger.LogException(ex);
+            }
+            finally
+            {
+                connection.Close();
             }
             return permissionDatas;
         }
