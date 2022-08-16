@@ -34,16 +34,30 @@ namespace PermissionSync.Command
                         if (ulong.TryParse(args[1], out ulong result))
                         {
                             var player = UnturnedPlayer.FromCSteamID(new Steamworks.CSteamID(result));
-                            Main.Instance.databese.AddPermission((caller.Id),player, args[2]);
-                            UnturnedChat.Say(caller, Main.Instance.Translate("add_permission", args[2],player.DisplayName));
+
+                            if(Main.Instance.databese.AddPermission((caller.Id),player, args[2]))
+                            {
+                                UnturnedChat.Say(caller, Main.Instance.Translate("add_permission", args[2], player.DisplayName));
+                            }
+                            else
+                            {
+                                UnturnedChat.Say(caller, Main.Instance.Translate("illegal_datetime"), UnityEngine.Color.red);
+                            }
+                            
                         }
                         else
                         {
                             var player = UnturnedPlayer.FromName(args[1]);
                             if (player != null)
                             {
-                                Main.Instance.databese.AddPermission(caller.Id, player, args[2]);
-                                UnturnedChat.Say(caller, Main.Instance.Translate("add_permission", args[2],player.DisplayName));
+                                if (Main.Instance.databese.AddPermission(caller.Id, player, args[2]))
+                                {
+                                    UnturnedChat.Say(caller, Main.Instance.Translate("add_permission", args[2], player.DisplayName));
+                                }
+                                else
+                                {
+                                    UnturnedChat.Say(caller, Main.Instance.Translate("illegal_datetime"), UnityEngine.Color.red);
+                                }
                             }
                             else
                             {
@@ -81,16 +95,30 @@ namespace PermissionSync.Command
                         if (ulong.TryParse(args[1], out ulong result))
                         {
                             var player = UnturnedPlayer.FromCSteamID(new Steamworks.CSteamID(result));
-                            Main.Instance.databese.AddPermission(caller.Id,player, args[2], args[3]);
-                            UnturnedChat.Say(caller, Main.Instance.Translate("add_permission", args[2],player.DisplayName));
+                            if(Main.Instance.databese.AddPermission(caller.Id,player, args[2], args[3]))
+                            {
+                                UnturnedChat.Say(caller, Main.Instance.Translate("add_permission", args[2], player.DisplayName));
+                            }
+                            else
+                            {
+                                UnturnedChat.Say(caller, Main.Instance.Translate("illegal_datetime"), UnityEngine.Color.red);
+                            }
+                            
                         }
                         else
                         {
                             var player = UnturnedPlayer.FromName(args[1]);
                             if (player != null)
                             {
-                                Main.Instance.databese.AddPermission(caller.Id, player, args[2], args[3]);
-                                UnturnedChat.Say(caller, Main.Instance.Translate("add_permission", args[2], player.DisplayName));
+                                if(Main.Instance.databese.AddPermission(caller.Id, player, args[2], args[3]))
+                                {
+                                    UnturnedChat.Say(caller, Main.Instance.Translate("add_permission", args[2], player.DisplayName));
+                                }
+                                else
+                                {
+                                    UnturnedChat.Say(caller, Main.Instance.Translate("illegal_datetime"), UnityEngine.Color.red);
+                                }
+                                
                             }
                             else
                             {

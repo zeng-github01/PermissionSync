@@ -43,7 +43,8 @@ namespace PermissionSync
             {"sync_permission","Your permission group has been synced." },
             {"add_permission","Permission group:{0} has been added to {1}" },
             {"remove_permission","Successfully removed permission group:{0} from {1}" },
-            {"wrong_usage","wrong usage.Usage:{0}." }
+            {"wrong_usage","wrong usage.Usage:{0}." },
+            {"illegal_datetime","Illegal expire date.please insert like '2022-01-31'."}
         };
     }
 }

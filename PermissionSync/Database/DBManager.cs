@@ -112,11 +112,21 @@ namespace PermissionSync.Database
             }
             return groupids;
         }
-        public void AddPermission(string oeratorID,UnturnedPlayer player,string PermissionGroupId,string expireTime = "2099-12-31")
+        public bool AddPermission(string oeratorID,UnturnedPlayer player,string PermissionGroupId,string expireTime = "2099-12-31")
         {
-            PermissionData data = new PermissionData(player.CSteamID, PermissionGroupId, DateTime.Parse(expireTime),oeratorID);
-            SaveDataToDB(data);
-            R.Permissions.AddPlayerToGroup(PermissionGroupId, player);
+             bool AddGroup;
+           if(DateTime.TryParse(expireTime,out DateTime dateTime))
+            {
+                PermissionData data = new PermissionData(player.CSteamID, PermissionGroupId, dateTime, oeratorID);
+                SaveDataToDB(data);
+                R.Permissions.AddPlayerToGroup(PermissionGroupId, player);
+                AddGroup = true;
+            }
+           else
+            {
+                AddGroup = false;
+            }
+            return AddGroup;
         }
 
         public void RemovePermission(UnturnedPlayer player, string PermiisonGroupId)
