@@ -129,6 +129,13 @@ namespace PermissionSync.Database
             return AddGroup;
         }
 
+        public void AddPermission(string oeratorID, UnturnedPlayer player, string PermissionGroupId, DateTime dateTime)
+        {
+            PermissionData data = new PermissionData(player.CSteamID, PermissionGroupId, dateTime, oeratorID);
+            SaveDataToDB(data);
+            R.Permissions.AddPlayerToGroup(PermissionGroupId, player);
+        }
+
         public void RemovePermission(UnturnedPlayer player, string PermiisonGroupId)
         {
             RemoveDataFromDB(player, PermiisonGroupId);
