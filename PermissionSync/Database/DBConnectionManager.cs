@@ -16,12 +16,12 @@ namespace PermissionSync.Database
 
             try
             {
-                if(Main.Instance.Configuration.Instance.DatabasePort == 0)
+                if(PermissionSync.Instance.Configuration.Instance.DatabasePort == 0)
                 {
-                    Main.Instance.Configuration.Instance.DatabasePort = 3306;
+                    PermissionSync.Instance.Configuration.Instance.DatabasePort = 3306;
                 }
                 connection = new MySqlConnection(
-                $"SERVER={Main.Instance.Configuration.Instance.DatabaseAddress};DATABASE={Main.Instance.Configuration.Instance.DatabaseName};UID={Main.Instance.Configuration.Instance.DatabaseUsername};PASSWORD={Main.Instance.Configuration.Instance.DatabasePassword};PORT={Main.Instance.Configuration.Instance.DatabasePort};");
+                $"SERVER={PermissionSync.Instance.Configuration.Instance.DatabaseAddress};DATABASE={PermissionSync.Instance.Configuration.Instance.DatabaseName};UID={PermissionSync.Instance.Configuration.Instance.DatabaseUsername};PASSWORD={PermissionSync.Instance.Configuration.Instance.DatabasePassword};PORT={PermissionSync.Instance.Configuration.Instance.DatabasePort};");
             }
             catch(Exception ex)
             {

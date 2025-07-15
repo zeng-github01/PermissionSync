@@ -9,14 +9,14 @@ namespace PermissionSync.Data
 {
     public class PermissionData
     {
-        public CSteamID SteamID { get; internal set; }
+        public ulong SteamID { get; internal set; }
 
         public string OperatorID { get; internal set; }
         public string PermissionID { get; internal set; }
         public DateTime ExpireDate { get; internal set; }
 
 
-        public PermissionData(CSteamID steamID, string permissionID, DateTime expireDate, string operatorID)
+        public PermissionData(ulong steamID, string permissionID, DateTime expireDate, string operatorID)
         {
             SteamID = steamID;
             PermissionID = permissionID;

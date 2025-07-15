@@ -14,7 +14,9 @@ namespace PermissionSync
         public string DatabaseUsername;
         public string DatabasePassword;
         public string DatabaseName;
-        public string DatabaseTableName;
+        public string PermissionPlayerTableName;
+        public string PermissionGroupTableName;
+        public string PermissionSubTableName;
         public int DatabasePort;
         public void LoadDefaults()
         {
@@ -23,7 +25,9 @@ namespace PermissionSync
             DatabaseUsername = "root";
             DatabasePassword = "password";
             DatabaseName = "unturned";
-            DatabaseTableName = "permissionsync";
+            PermissionPlayerTableName = "permissionsync_player";
+            PermissionGroupTableName = "permissionsync_groups";
+            PermissionSubTableName = "permissionsync_permission";
             DatabasePort = 3306;
         }
     }
