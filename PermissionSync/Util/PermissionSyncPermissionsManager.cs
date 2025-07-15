@@ -33,7 +33,7 @@ namespace PermissionSync.Util
                     return RocketPermissionsProviderResult.DuplicateEntry;
                 }
                 _dbConnectionManager.ExecuteQuery(false,
-                    $"INSERT INTO `{PermissionSync.Instance.Configuration.Instance.PermissionGroupTableName}` (`GroupID`, `GroupName`, `GroupColor`, `GroupPriority`, `GroupPrefix`) VALUES ('{group.Id}', '{group.DisplayName}', '{group.Color}', '{group.Priority}', '{group.Prefix}')");
+                    $"INSERT INTO `{PermissionSync.Instance.Configuration.Instance.PermissionGroupTableName}` (`GroupID`, `GroupName`, `GroupColor`, `GroupPriority`, `GroupPrefix` , `GroupSuffix`) VALUES ('{group.Id}', '{group.DisplayName}', '{group.Color}', '{group.Priority}', '{group.Prefix}', '{group.Suffix}')");
                 // 插入权限子表
                 if (group.Permissions != null)
                 {
