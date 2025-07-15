@@ -72,9 +72,11 @@ namespace PermissionSync.Command
 
         private CSteamID TryGetPlayerSteamID(string input)
         {
-            return ulong.TryParse(input, out ulong id)
-                ? new CSteamID(id)
-                : UnturnedPlayer.FromName(input).CSteamID;
+            if (ulong.TryParse(input, out ulong id))
+                return new CSteamID(id);
+
+            var player = UnturnedPlayer.FromName(input);
+            return player != null ? player.CSteamID : CSteamID.Nil;
         }
     }
 }
