@@ -30,7 +30,7 @@ namespace PermissionSync.Database
             DBConnection.ExecuteQuery(true,
                 $"CREATE TABLE IF NOT EXISTS `{(global::PermissionSync.PermissionSync.Instance.Configuration.Instance.PermissionPlayerTableName)}` (`SteamID` BIGINT NOT NULL, `PermissionGroup` varchar(32) NOT NULL, `ExpireDate` datetime(6) NOT NULL DEFAULT '{DateTime.MaxValue}', `Operator` VARCHAR(32) NOT NULL,UNIQUE KEY unique_permission (`SteamID`,`PermissionGroup`));");
             DBConnection.ExecuteQuery(true, 
-                $"CREATE TABLE IF NOT EXISTS `{(global::PermissionSync.PermissionSync.Instance.Configuration.Instance.PermissionGroupTableName)}` (`GroupID` varchar(32) NOT NULL, `GroupName` varchar(32) NOT NULL, `GroupColor` varchar(32) NOT NULL, `GroupPriority` int NOT NULL DEFAULT 0, UNIQUE KEY unique_group (`GroupID`));");
+                $"CREATE TABLE IF NOT EXISTS `{(global::PermissionSync.PermissionSync.Instance.Configuration.Instance.PermissionGroupTableName)}` (`GroupID` varchar(32) NOT NULL, `GroupName` varchar(32) NOT NULL, `GroupColor` varchar(32) NOT NULL, `GroupPriority` int NOT NULL DEFAULT 0, `GroupPrefix` varchar(32) UNIQUE KEY unique_group (`GroupID`));");
             DBConnection.ExecuteQuery(true,
                 $"CREATE TABLE IF NOT EXISTS `{(global::PermissionSync.PermissionSync.Instance.Configuration.Instance.PermissionSubTableName)}` (`GroupID` varchar(32) NOT NULL, `PermissionName` varchar(32) NOT NULL, `PermissionCooldown` int NOT NULL DEFAULT 0, UNIQUE KEY unique_permission_sub (`GroupID`,`PermissionName`));");
             if (global::PermissionSync.PermissionSync.Instance.Configuration.Instance.TableVer == 1)
