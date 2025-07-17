@@ -8,7 +8,7 @@ namespace PermissionSync.Enum
 {
     public enum EDBQueryType
     {
-        ByStamID,
+        BySteamID,
         BySteamIDAndTime
     }
 }

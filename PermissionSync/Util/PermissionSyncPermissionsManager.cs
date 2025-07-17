@@ -151,8 +151,11 @@ namespace PermissionSync.Util
                         DisplayName = reader["GroupName"].ToString(),
                         Color = reader["GroupColor"].ToString(),
                         Priority = Convert.ToInt16(reader["GroupPriority"]),
-                        Prefix = reader["GroupPrefix"].ToString(),
-                        Permissions = GetPermissionsBelongGroup(groupId)
+                        Prefix = reader["GroupPrefix"] == DBNull.Value ? string.Empty : reader["GroupPrefix"].ToString(),
+                        Permissions = PermissionSync.Instance.Database.GetPermissionsBelongGroup(groupId),
+                        Suffix = reader["GroupSuffix"] == DBNull.Value ? string.Empty : reader["GroupSuffix"].ToString(),
+                        Members = PermissionSync.Instance.Database.GetGroupMembers(groupId),
+                        ParentGroup = reader["ParentGroup"] == DBNull.Value ? string.Empty : reader["ParentGroup"].ToString()
                     };
                     return group;
                 }
@@ -171,6 +174,7 @@ namespace PermissionSync.Util
         public List<RocketPermissionsGroup> GetGroups(IRocketPlayer player, bool includeParentGroups)
         {
             var groups = new List<RocketPermissionsGroup>();
+            var visited = new HashSet<string>();
             var connection = _dbConnectionManager.CreateConnection();
             try
             {
@@ -187,9 +191,7 @@ namespace PermissionSync.Util
                 reader.Close();
                 foreach (var groupId in groupIds)
                 {
-                    var group = GetGroup(groupId);
-                    if (group != null)
-                        groups.Add(group);
+                    AddGroupWithParents(groupId, ref groups, ref visited, includeParentGroups);
                 }
             }
             catch (Exception ex)
@@ -201,6 +203,22 @@ namespace PermissionSync.Util
                 connection.Close();
             }
             return groups;
+        }
+
+        // 递归添加父组，groups和visited用ref传递，确保递归时同步修改
+        private void AddGroupWithParents(string groupId, ref List<RocketPermissionsGroup> groups, ref HashSet<string> visited, bool includeParentGroups)
+        {
+            if (visited.Contains(groupId)) return;
+            visited.Add(groupId);
+            var group = GetGroup(groupId);
+            if (group != null)
+            {
+                groups.Add(group);
+                if (includeParentGroups && !string.IsNullOrEmpty(group.ParentGroup))
+                {
+                    AddGroupWithParents(group.ParentGroup, ref groups, ref visited, true);
+                }
+            }
         }
 
         public List<Permission> GetPermissions(IRocketPlayer player)
@@ -305,38 +323,6 @@ namespace PermissionSync.Util
                 Logger.LogException(ex);
                 return RocketPermissionsProviderResult.UnspecifiedError;
             }
-        }
-
-        private List<Permission> GetPermissionsBelongGroup(string groupId)
-        {
-            var list = new List<Permission>();
-            var connection = _dbConnectionManager.CreateConnection();
-            try
-            {
-                connection.Open();
-                var command = connection.CreateCommand();
-                command.CommandText = $"SELECT * FROM `{PermissionSync.Instance.Configuration.Instance.PermissionSubTableName}` WHERE `GroupID` = @groupid";
-                command.Parameters.AddWithValue("@groupid", groupId);
-                var reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    Permission permission = new Permission
-                    {
-                        Name = reader["PermissionName"].ToString(),
-                        Cooldown = Convert.ToUInt32(reader["PermissionCooldown"]),
-                    };
-                    list.Add(permission);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogException(ex);
-            }
-            finally
-            {
-                connection.Close();
-            }
-            return list;
-        }
+        }     
     }
 }

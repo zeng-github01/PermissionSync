@@ -26,8 +26,15 @@ namespace PermissionSync
         {
             Instance = this;
             Database = new DBManager();
-            SyncGroup();
-            //R.Permissions = gameObject.TryAddComponent<PermissionSyncPermissionsManager>();
+            if (Configuration.Instance.SyncPermissionGroups && Configuration.Instance.UseRocketPermissionSystem)
+            {
+                SyncPermissionGroups();
+            }
+            // If UseRocketPermissionSystem is false, then we will use Rocket's permission system.
+            if (!Configuration.Instance.UseRocketPermissionSystem)
+            {
+                R.Permissions = gameObject.TryAddComponent<PermissionSyncPermissionsManager>();
+            }
             U.Events.OnPlayerConnected += Events_OnPlayerConnected;
             Logger.Log($"{Name} has been loaded");
             
@@ -48,7 +55,7 @@ namespace PermissionSync
         {
             var servergroupids = GetPlayerPermissionGroupId(player);
             // Get Player's PermissionGroup
-            var dbgroups = Database.GetPlayerPermissionData(player.CSteamID, EDBQueryType.ByStamID);
+            var dbgroups = Database.GetPlayerPermissionData(player.CSteamID, EDBQueryType.BySteamID);
             foreach (var dbgroup in dbgroups)
             {
                 if (servergroupids.Contains(dbgroup.PermissionID))
@@ -71,9 +78,9 @@ namespace PermissionSync
 
         }
 
-        private void SyncGroup()
+        private void SyncPermissionGroups()
         {
-            var servergroup = Database.GetRocketPermissionsGroup();
+            var servergroup = Database.GetPermissionGroup();
             foreach (var group in servergroup)
             {
                 if (R.Permissions.GetGroup(group.Id) == default)
@@ -82,8 +89,6 @@ namespace PermissionSync
                 }
                 else
                 {
-                    var members = R.Permissions.GetGroup(group.Id).Members;
-                    group.Members = members;
                     R.Permissions.SaveGroup(group);
                 }
             }
@@ -98,6 +103,8 @@ namespace PermissionSync
                 groupids.Add(group.Id);
             }
             return groupids;
+
+
         }
 
         public override TranslationList DefaultTranslations => new TranslationList

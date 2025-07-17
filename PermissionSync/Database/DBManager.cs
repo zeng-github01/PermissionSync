@@ -26,21 +26,32 @@ namespace PermissionSync.Database
 
         internal void CheckSchama()
         {
-
-            DBConnection.ExecuteQuery(true,
-                $"CREATE TABLE IF NOT EXISTS `{(global::PermissionSync.PermissionSync.Instance.Configuration.Instance.PermissionPlayerTableName)}` (`SteamID` BIGINT NOT NULL, `PermissionGroup` varchar(32) NOT NULL, `ExpireDate` datetime(6) NOT NULL DEFAULT '{DateTime.MaxValue}', `Operator` VARCHAR(32) NOT NULL,UNIQUE KEY unique_permission (`SteamID`,`PermissionGroup`));");
-            DBConnection.ExecuteQuery(true, 
-                $"CREATE TABLE IF NOT EXISTS `{(global::PermissionSync.PermissionSync.Instance.Configuration.Instance.PermissionGroupTableName)}` (`GroupID` varchar(32) NOT NULL, `GroupName` varchar(32) NOT NULL, `GroupColor` varchar(32) NOT NULL, `GroupPriority` int NOT NULL DEFAULT 0, `GroupPrefix` varchar(32), `GroupSuffix` varchar(32) UNIQUE KEY unique_group (`GroupID`));");
-            DBConnection.ExecuteQuery(true,
-                $"CREATE TABLE IF NOT EXISTS `{(global::PermissionSync.PermissionSync.Instance.Configuration.Instance.PermissionSubTableName)}` (`GroupID` varchar(32) NOT NULL, `PermissionName` varchar(32) NOT NULL, `PermissionCooldown` int NOT NULL DEFAULT 0, UNIQUE KEY unique_permission_sub (`GroupID`,`PermissionName`));");
-            if (global::PermissionSync.PermissionSync.Instance.Configuration.Instance.TableVer == 1)
+            try
             {
+                // 1. 创建表（初始版本）
                 DBConnection.ExecuteQuery(true,
-                    $"ALTER TABLE `{(global::PermissionSync.PermissionSync.Instance.Configuration.Instance.PermissionPlayerTableName)}` ADD CONSTRAINT unique_permission UNIQUE KEY(`SteamID`,`PermissionGroup`)");
-                global::PermissionSync.PermissionSync.Instance.Configuration.Instance.TableVer = 2;
-            }
+                    $"CREATE TABLE IF NOT EXISTS `{(global::PermissionSync.PermissionSync.Instance.Configuration.Instance.PermissionPlayerTableName)}` (`SteamID` BIGINT NOT NULL, `PermissionGroup` varchar(32) NOT NULL, `ExpireDate` datetime(6) NOT NULL DEFAULT '{DateTime.MaxValue}', `Operator` VARCHAR(32) NOT NULL,UNIQUE KEY unique_permission (`SteamID`,`PermissionGroup`));");
+                DBConnection.ExecuteQuery(true,
+                    $"CREATE TABLE IF NOT EXISTS `{(global::PermissionSync.PermissionSync.Instance.Configuration.Instance.PermissionGroupTableName)}` (`GroupID` varchar(32) NOT NULL, `GroupName` varchar(32) NOT NULL, `GroupColor` varchar(32) NOT NULL, `GroupPriority` int NOT NULL DEFAULT 0, `GroupPrefix` NOT NULL varchar(32) DEFAULT '', `GroupSuffix` NOT NULL varchar(32) DEFAULT '', `ParentGroup` varchar(32) NOT NULL DEFAULT '', UNIQUE KEY unique_group (`GroupID`));");
+                DBConnection.ExecuteQuery(true,
+                    $"CREATE TABLE IF NOT EXISTS `{(global::PermissionSync.PermissionSync.Instance.Configuration.Instance.PermissionSubTableName)}` (`GroupID` varchar(32) NOT NULL, `PermissionName` varchar(32) NOT NULL, `PermissionCooldown` int NOT NULL DEFAULT 0, UNIQUE KEY unique_permission_sub (`GroupID`,`PermissionName`));");
 
-            global::PermissionSync.PermissionSync.Instance.Configuration.Save();
+                // 2. 迁移逻辑
+                var config = global::PermissionSync.PermissionSync.Instance.Configuration.Instance;
+                if (config.TableVer < 2)
+                {
+                    // v1 -> v2: 添加唯一索引
+                    DBConnection.ExecuteQuery(true,
+                        $"ALTER TABLE `{(config.PermissionPlayerTableName)}` ADD CONSTRAINT unique_permission UNIQUE KEY(`SteamID`,`PermissionGroup`)");
+                    config.TableVer = 2;
+                }
+                // 保存 TableVer 到配置文件
+                global::PermissionSync.PermissionSync.Instance.Configuration.Save();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
         }
 
         public List<Permission> GetPermissionsBelongGroup(string groupId)
@@ -76,7 +87,35 @@ namespace PermissionSync.Database
             return list;
         }
 
-        public List<RocketPermissionsGroup> GetRocketPermissionsGroup()
+        // 获取指定权限组的所有成员SteamID
+        public List<string> GetGroupMembers(string groupId)
+        {
+            var members = new List<string>();
+            var connection = DBConnection.CreateConnection();
+            try
+            {
+                connection.Open();
+                var command = connection.CreateCommand();
+                command.CommandText = $"SELECT SteamID FROM `{PermissionSync.Instance.Configuration.Instance.PermissionPlayerTableName}` WHERE `PermissionGroup` = @groupId";
+                command.Parameters.AddWithValue("@groupId", groupId);
+                var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    members.Add(reader["SteamID"].ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return members;
+        }
+
+        public List<RocketPermissionsGroup> GetPermissionGroup()
         {
             List<RocketPermissionsGroup> groups = new List<RocketPermissionsGroup>();
             var connection = DBConnection.CreateConnection();
@@ -95,8 +134,10 @@ namespace PermissionSync.Database
                         Color = reader["GroupColor"].ToString(),
                         Priority = Convert.ToInt16(reader["GroupPriority"]),
                         Permissions = GetPermissionsBelongGroup(reader["GroupID"].ToString()),
-                        Prefix = reader["GroupPrefix"].ToString(),
-                        Suffix = reader["GroupSuffix"].ToString()
+                        Prefix = reader["GroupPrefix"] != DBNull.Value ? reader["GroupPrefix"].ToString() : string.Empty,
+                        Suffix = reader["GroupSuffix"] != DBNull.Value ? reader["GroupSuffix"].ToString() : string.Empty,
+                        Members = GetGroupMembers(reader["GroupID"].ToString()),
+                        ParentGroup = reader["ParentGroup"] != DBNull.Value ? reader["ParentGroup"].ToString() : string.Empty
                     };
                     groups.Add(group);
                 }
@@ -122,7 +163,7 @@ namespace PermissionSync.Database
                 var command = connection.CreateCommand();
                 switch(type)
                 {
-                    case EDBQueryType.ByStamID:
+                    case EDBQueryType.BySteamID:
                         command.Parameters.AddWithValue("@steamid", steamID);
                         command.CommandText = $"Select * from `{(global::PermissionSync.PermissionSync.Instance.Configuration.Instance.PermissionPlayerTableName)}` where `SteamID` = @steamid";
                         break;
@@ -211,7 +252,7 @@ namespace PermissionSync.Database
         internal void RemoveDataFromDB(ulong steamID,string groupid)
         {
             DBConnection.ExecuteQuery(true,
-                $"Delect from `{(global::PermissionSync.PermissionSync.Instance.Configuration.Instance.PermissionPlayerTableName)}` Where `SteamID` = '{steamID}' and `PermissionGroup` = '{groupid}'");
+                $"Delete from `{(global::PermissionSync.PermissionSync.Instance.Configuration.Instance.PermissionPlayerTableName)}` Where `SteamID` = '{steamID}' and `PermissionGroup` = '{groupid}'");
         }
 
         internal void UpdateDataInDB(PermissionData permissionData)

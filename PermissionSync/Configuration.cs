@@ -18,6 +18,8 @@ namespace PermissionSync
         public string PermissionGroupTableName;
         public string PermissionSubTableName;
         public int DatabasePort;
+        public bool SyncPermissionGroups;
+        public bool UseRocketPermissionSystem;
         public void LoadDefaults()
         {
             TableVer = 2;
@@ -29,6 +31,8 @@ namespace PermissionSync
             PermissionGroupTableName = "permissionsync_groups";
             PermissionSubTableName = "permissionsync_permission";
             DatabasePort = 3306;
+            SyncPermissionGroups = true;
+            UseRocketPermissionSystem = true;
         }
     }
 }
